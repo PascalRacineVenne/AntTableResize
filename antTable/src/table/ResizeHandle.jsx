@@ -1,5 +1,10 @@
 import React, { useRef } from "react";
-import { DragOutlined } from "@ant-design/icons";
+import {
+  DragOutlined,
+  VerticalAlignMiddleOutlined,
+  SwapOutlined,
+  ColumnWidthOutlined,
+} from "@ant-design/icons";
 
 /**
  * Props:
@@ -46,13 +51,30 @@ const ResizeHandle = ({ onMouseDown, active }) => {
         e.target.style.backgroundColor = active ? "#1890ff" : "transparent";
       }}
     >
-      <DragOutlined
+      {/* <DragOutlined
         style={{
           fontSize: "10px",
           color: active ? "#fff" : "#999",
           transform: "rotate(90deg)",
         }}
+      /> */}
+      <VerticalAlignMiddleOutlined
+        style={{
+          fontSize: "12px",
+          color: active ? "#fff" : "#999",
+          transform: "rotate(90deg)",
+        }}
       />
+      {/* <SwapOutlined
+        style={{
+          fontSize: "12px",
+          color: active ? "#fff" : "#999",
+          transform: "rotate(90deg)",
+        }}
+      />
+      <ColumnWidthOutlined
+        style={{ fontSize: "12px", color: active ? "#fff" : "#999" }}
+      /> */}
     </div>
   );
 };

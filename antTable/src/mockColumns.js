@@ -6,17 +6,17 @@ export const mockColumns = [
     width: 100,
     fixed: "left",
     resizable: true,
-    filters: [
-      {
-        text: "Joe",
-        value: "Joe",
-      },
-      {
-        text: "John",
-        value: "John",
-      },
-    ],
-    onFilter: (value, record) => record.name.indexOf(value) === 0,
+    // filters: [
+    //   {
+    //     text: "Joe",
+    //     value: "Joe",
+    //   },
+    //   {
+    //     text: "John",
+    //     value: "John",
+    //   },
+    // ],
+    // onFilter: (value, record) => record.name.indexOf(value) === 0,
   },
   {
     title: "Other",
@@ -28,7 +28,7 @@ export const mockColumns = [
         key: "age",
         width: 150,
         resizable: true,
-        sorter: (a, b) => a.age - b.age,
+        // sorter: (a, b) => a.age - b.age,
       },
       {
         title: "Address",
