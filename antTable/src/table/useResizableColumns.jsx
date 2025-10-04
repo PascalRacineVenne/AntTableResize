@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import DEFAULT_COLUMN_WIDTH from "../AntTable";
 import { isGroupColumn } from "./utils";
 
-export function useResizableColumns(initialColumns, dataSource) {
+export function useResizableColumns(dataSource, initialColumns) {
   const [columns, setColumns] = useState(
     initialColumns || [
       {
@@ -141,14 +141,20 @@ export function useResizableColumns(initialColumns, dataSource) {
     setColumns((prevColumns) => updateWidth(prevColumns));
   }, []);
 
-  const getTextWidth = (text, font = "14px Arial") => {
-    // Create a canvas for measuring text width
-    const canvas =
-      getTextWidth.canvas ||
-      (getTextWidth.canvas = document.createElement("canvas"));
-    const context = canvas.getContext("2d");
-    context.font = font;
-    return context.measureText(text).width;
+  // const getTextWidth = (text, font = "14px Arial") => {
+  //   // Create a canvas for measuring text width
+  //   const canvas =
+  //     getTextWidth.canvas ||
+  //     (getTextWidth.canvas = document.createElement("canvas"));
+  //   const context = canvas.getContext("2d");
+  //   context.font = font;
+  //   return context.measureText(text).width;
+  // };
+
+  const getTextWidth = (text) => {
+    // Estimate average character width for 14px font (adjust as needed)
+    const avgCharWidth = 8; // You can tweak this value for your font
+    return String(text).length * avgCharWidth;
   };
 
   const findColumnByKey = (cols, key) => {
@@ -173,14 +179,16 @@ export function useResizableColumns(initialColumns, dataSource) {
 
       // Get header width
       const headerText = typeof col.title === "string" ? col.title : "";
-      const headerWidth = getTextWidth(headerText, "bold 14px Arial");
+      // const headerWidth = getTextWidth(headerText, "bold 14px Arial");
+      const headerWidth = getTextWidth(headerText);
 
       // Get max cell width (sample up to 50 rows for performance)
       let maxCellWidth = 0;
       dataSource.slice(0, 50).forEach((row) => {
         const value = row[key];
         const cellText = value == null ? "" : String(value);
-        const cellWidth = getTextWidth(cellText, "14px Arial");
+        // const cellWidth = getTextWidth(cellText, "14px Arial");
+        const cellWidth = getTextWidth(cellText);
         if (cellWidth > maxCellWidth) maxCellWidth = cellWidth;
       });
 

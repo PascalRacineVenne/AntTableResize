@@ -1,7 +1,12 @@
 import { Tooltip } from "antd";
 import ResizeHandle from "./ResizeHandle";
 
-const enhancedColumns = (columns, resizing, handleResizeMouseDown) => {
+const enhancedColumns = (
+  columns,
+  resizing,
+  handleResizeMouseDown,
+  wrapHeaders
+) => {
   return columns.map((col) => {
     if (col.children) {
       return {
@@ -9,7 +14,8 @@ const enhancedColumns = (columns, resizing, handleResizeMouseDown) => {
         children: enhancedColumns(
           col.children,
           resizing,
-          handleResizeMouseDown
+          handleResizeMouseDown,
+          wrapHeaders
         ),
       };
     }
@@ -32,18 +38,27 @@ const enhancedColumns = (columns, resizing, handleResizeMouseDown) => {
             title={typeof col.title === "string" ? col.title : undefined}
           >
             <span
-              style={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                // whiteSpace: "normal", // allow wrapping
-                // wordBreak: "break-word", // wrap at word boundaries
-                // overflowWrap: "break-word", // fallback for some browsers
-                paddingRight: col.resizable ? "12px" : "0",
-                fontSize: "13px",
-                fontWeight: "600",
-                color: resizing === col.key ? "#1890ff" : "inherit",
-              }}
+              style={
+                wrapHeaders
+                  ? {
+                      whiteSpace: "normal",
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                      paddingRight: col.resizable ? "12px" : "0",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      color: resizing === col.key ? "#1890ff" : "inherit",
+                    }
+                  : {
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      paddingRight: col.resizable ? "12px" : "0",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      color: resizing === col.key ? "#1890ff" : "inherit",
+                    }
+              }
             >
               {typeof col.title === "string" ? col.title : col.title}
             </span>
