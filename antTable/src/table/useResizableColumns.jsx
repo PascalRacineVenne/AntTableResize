@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import DEFAULT_COLUMN_WIDTH from "../AntTable";
 import { isGroupColumn } from "./utils";
 
-export function useResizableColumns(initialColumns) {
+export function useResizableColumns(initialColumns, dataSource) {
   const [columns, setColumns] = useState(
     initialColumns || [
       {
@@ -141,28 +141,60 @@ export function useResizableColumns(initialColumns) {
     setColumns((prevColumns) => updateWidth(prevColumns));
   }, []);
 
-  // Auto-fit column to estimated content width
+  const getTextWidth = (text, font = "14px Arial") => {
+    // Create a canvas for measuring text width
+    const canvas =
+      getTextWidth.canvas ||
+      (getTextWidth.canvas = document.createElement("canvas"));
+    const context = canvas.getContext("2d");
+    context.font = font;
+    return context.measureText(text).width;
+  };
+
+  const findColumnByKey = (cols, key) => {
+    for (const col of cols) {
+      if (col.key === key || col.dataIndex === key) {
+        return col;
+      }
+      if (isGroupColumn(col)) {
+        const found = findColumnByKey(col.children, key);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
   const autoFitColumn = useCallback(
     (key) => {
-      const estimatedWidths = {
-        id: 60,
-        name: 140,
-        email: 190,
-        phone: 130,
-        age: 70,
-        department: 110,
-        salary: 100,
-        address: 250,
-        hireDate: 100,
-        manager: 110,
-        location: 90,
-        experience: 90,
-        status: 80,
-      };
-      const estimatedWidth = estimatedWidths[key] || 120;
+      // Find the column definition
+      const col = findColumnByKey(columns, key);
+      // console.log("Auto-fitting column:", key, col);
+      if (!col) return;
+
+      // Get header width
+      const headerText = typeof col.title === "string" ? col.title : "";
+      const headerWidth = getTextWidth(headerText, "bold 14px Arial");
+
+      // Get max cell width (sample up to 50 rows for performance)
+      let maxCellWidth = 0;
+      dataSource.slice(0, 50).forEach((row) => {
+        const value = row[key];
+        const cellText = value == null ? "" : String(value);
+        const cellWidth = getTextWidth(cellText, "14px Arial");
+        if (cellWidth > maxCellWidth) maxCellWidth = cellWidth;
+      });
+
+      // Add padding for cell and header
+      const padding = 32; // 16px left + 16px right
+      let estimatedWidth = Math.ceil(
+        Math.max(headerWidth, maxCellWidth) + padding
+      );
+      estimatedWidth = Math.min(estimatedWidth, 150);
+      // console.log(`Auto-fitting column ${key} to width ${estimatedWidth}px`);
+
       handleColumnWidthChange(key, estimatedWidth);
     },
-    [handleColumnWidthChange]
+    [columns, dataSource, handleColumnWidthChange, getTextWidth]
   );
 
   // Reset all columns to default
@@ -170,9 +202,13 @@ export function useResizableColumns(initialColumns) {
     function resetWidths(cols) {
       return cols.map((col) => {
         if (isGroupColumn(col)) {
-          return { ...col, children: resetWidths(col.children) };
+          return {
+            ...col,
+            children: resetWidths(col.children),
+          };
         }
-        return { ...col, width: DEFAULT_COLUMN_WIDTH };
+        const { width: _, ...rest } = col;
+        return rest;
       });
     }
     setColumns((prevColumns) => resetWidths(prevColumns));

@@ -1,3 +1,4 @@
+import { Tooltip } from "antd";
 import ResizeHandle from "./ResizeHandle";
 
 const enhancedColumns = (columns, resizing, handleResizeMouseDown) => {
@@ -27,19 +28,26 @@ const enhancedColumns = (columns, resizing, handleResizeMouseDown) => {
             height: "32px",
           }}
         >
-          <span
-            style={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              paddingRight: col.resizable ? "12px" : "0",
-              fontSize: "13px",
-              fontWeight: "600",
-              color: resizing === col.key ? "#1890ff" : "inherit",
-            }}
+          <Tooltip
+            title={typeof col.title === "string" ? col.title : undefined}
           >
-            {typeof col.title === "string" ? col.title : col.title}
-          </span>
+            <span
+              style={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                // whiteSpace: "normal", // allow wrapping
+                // wordBreak: "break-word", // wrap at word boundaries
+                // overflowWrap: "break-word", // fallback for some browsers
+                paddingRight: col.resizable ? "12px" : "0",
+                fontSize: "13px",
+                fontWeight: "600",
+                color: resizing === col.key ? "#1890ff" : "inherit",
+              }}
+            >
+              {typeof col.title === "string" ? col.title : col.title}
+            </span>
+          </Tooltip>
           {col.resizable && (
             <ResizeHandle
               onMouseDown={(e, offset) =>

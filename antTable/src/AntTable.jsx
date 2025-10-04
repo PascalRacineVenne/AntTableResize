@@ -1,5 +1,5 @@
 import { useState, useRef, useLayoutEffect } from "react";
-import { Space } from "antd";
+import { Space, Button } from "antd";
 
 import { useTableData } from "./table/useTableData";
 import { useResizableColumns } from "./table/useResizableColumns";
@@ -8,12 +8,17 @@ import TableHeader from "./table/TableHeader";
 import RealAntResizableTable from "./table/RealAntResizableTable";
 import TableConfigInfo from "./table/TableConfigInfo";
 import ColumnSettingsDrawer from "./table/ColumnSettingsDrawer";
-import { mockColumns } from "./mockColumns";
-import { mockData } from "./mockData";
+// import { mockColumns } from "./mockColumns";
+// import { mockColumnsV2 } from "./mockColumnsV2";
+// import { mockData } from "./mockData";
+import { mockDataESG } from "./mockDataESG";
+import { mockColumnsESG } from "./mockColumnsESG";
+import { getLeafColumns } from "./table/utils";
 
 export const DEFAULT_COLUMN_WIDTH = 150;
 
 const AntTable = () => {
+  const [autoFitActive, setAutoFitActive] = useState(false);
   const tableContainerRef = useRef(null);
   const hasMoved = useRef(false);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -22,9 +27,9 @@ const AntTable = () => {
   const startXRef = useRef(0);
   const startWidthRef = useRef(0);
 
-  const dataSource = useTableData(mockData);
+  const dataSource = useTableData(mockDataESG);
   const { columns, handleColumnWidthChange, autoFitColumn, resetAllWidths } =
-    useResizableColumns(mockColumns);
+    useResizableColumns(mockColumnsESG, dataSource);
 
   useLayoutEffect(() => {
     if (tableContainerRef.current) {
@@ -38,6 +43,18 @@ const AntTable = () => {
     columnCount * DEFAULT_COLUMN_WIDTH > containerWidth
       ? columnCount * DEFAULT_COLUMN_WIDTH
       : containerWidth - 2;
+
+  const handleAutoFitAll = () => {
+    const leafColumns = getLeafColumns(columns);
+    if (!autoFitActive) {
+      leafColumns.forEach((col) => {
+        autoFitColumn(col.key);
+      });
+    } else {
+      resetAllWidths();
+    }
+    setAutoFitActive((prev) => !prev);
+  };
 
   const handleResizeMouseDown = (e, columnKey, currentWidth, offset = 0) => {
     e.preventDefault();
@@ -93,6 +110,9 @@ const AntTable = () => {
           onResetWidths={resetAllWidths}
           onOpenSettings={() => setDrawerOpen(true)}
         />
+        <Button onClick={handleAutoFitAll} type="primary">
+          {autoFitActive ? "Reset All Columns" : "Auto-Fit All Columns"}
+        </Button>
         <RealAntResizableTable
           columns={newEnhancedColumns}
           dataSource={dataSource}
